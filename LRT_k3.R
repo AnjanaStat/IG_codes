@@ -1,0 +1,379 @@
+rm(list=ls())
+install.packages("Iso")
+install.packages("LaplacesDemon")
+install.packages("mgcv")
+library(LaplacesDemon)
+library(Iso)
+library(mgcv)
+fun1<-function(n1,n2,n3,mu,v1,v2,v3)
+{
+  g1=rig(n1,mu,1/v1);g2=rig(n2,mu,1/v2);g3=rig(n3,mu,1/v3)
+  m1=mean(g1);m2=mean(g2);m3=mean(g3);p1=sum(g1);p2=sum(g2);p3=sum(g3)
+  q1=sum(1/g1);q2=sum(1/g2);q3=sum(1/g3)
+  imu=(n1*m1+n2*m2+n3*m3)/(n1+n2+n3)
+  is1=n1/(q1-n1/m1);is2=n2/(q2-n2/m2);is3=n3/(q3-n3/m3)
+  x13=imu
+  t1=is1;t2=is2;t3=is3
+  repeat
+  {
+    nmu=(n1*m1*t1+n2*m2*t2+n3*m3*t3)/(n1*t1+n2*t2+n3*t3)
+    ns1=(n1*nmu^2)/sum((g1-nmu)^2/g1);ns2=(n2*nmu^2)/sum((g2-nmu)^2/g2)
+    ns3=(n3*nmu^2)/sum((g3-nmu)^2/g3)
+    D=abs(x13-nmu)
+    D1=max(D)
+    if(D1<=0.000001)
+    {
+      break
+    }
+    x13=nmu
+    t1=ns1;t2=ns2;t3=ns3
+  }
+  x<-c(m1, m2, m3)
+  s1<-sum(1/g1)/n1-1/m1
+  s2<-sum(1/g2)/n2-1/m2
+  s3<-sum(1/g3)/n3-1/m3
+  s<-c(s1, s2, s3)
+  x0=x
+  s0=s
+  x8<-x0
+  repeat
+  {
+    w1=c(n1/s0[1],n2/s0[2],n3/s0[3])
+    x6=pava(x0, w1)
+    s11<-(sum((g1-x6[1])^2/g1))/(n1*x6[1]^2)
+    s12<-(sum((g2-x6[2])^2/g2))/(n2*x6[2]^2)
+    s13<-(sum((g3-x6[3])^2/g3))/(n3*x6[3]^2)
+    v=c(s11, s12, s13)
+    s0<-v
+    x10=abs(x8-x6)
+    p=max(x10[1], x10[2], x10[3], na.rm = FALSE)
+    if(p<=0.0000001)
+    {
+      break
+    }
+    x8<-x6
+  }
+  LR=((t1*s0[1])^(n1/2))*((t2*s0[2])^(n2/2))*((t3*s0[3])^(n3/2))
+  return(LR)
+}
+fun2<-function(n1,n2,n3,mu,v1,v2,v3)
+{
+  x<-replicate(1000,fun1(n1,n2,n3,mu,v1,v2,v3))
+  y<-sort(x,decreasing=FALSE)
+  c<-y[50]
+  return(c)
+}
+fun3<-function(n1,n2,n3,mu1,mu2,mu3,v1,v2,v3)
+{
+  g1=rig(n1,mu1,1/v1)
+  g2=rig(n2,mu2,1/v2)
+  g3=rig(n3,mu3,1/v3)
+  m1=mean(g1);m2=mean(g2);m3=mean(g3)
+  barx=(n1*m1+n2*m2+n3*m3)/(n1+n2+n3)
+  p1=sum(g1);p2=sum(g2);p3=sum(g3)
+  q1=sum(1/g1);q2=sum(1/g2);q3=sum(1/g3)
+  imu=(n1*m1+n2*m2+n3*m3)/(n1+n2+n3)
+  is1=n1/(q1-n1/m1);is2=n2/(q2-n2/m2);is3=n3/(q3-n3/m3)
+  x13=imu
+  t1=is1;t2=is2;t3=is3
+  repeat
+  {
+    nmu=(n1*m1*t1+n2*m2*t2+n3*m3*t3)/(n1*t1+n2*t2+n3*t3)
+    ns1=(n1*nmu^2)/sum((g1-nmu)^2/g1);ns2=(n2*nmu^2)/sum((g2-nmu)^2/g2)
+    ns3=(n3*nmu^2)/sum((g3-nmu)^2/g3)
+    D=abs(x13-nmu)
+    D1=max(D)
+    if(D1<=0.000001)
+    {
+      break
+    }
+    x13=nmu
+    t1=ns1;t2=ns2;t3=ns3
+  }
+  x<-c(m1, m2, m3)
+  s1<-sum(1/g1)/n1-1/m1
+  s2<-sum(1/g2)/n2-1/m2
+  s3<-sum(1/g3)/n3-1/m3
+  s<-c(s1, s2, s3)
+  x0=x
+  s0=s
+  x8<-x0
+  repeat
+  {
+    w1=c(n1/s0[1],n2/s0[2],n3/s0[3])
+    x6=pava(x0, w1)
+    s11<-(sum((g1-x6[1])^2/g1))/(n1*x6[1]^2)
+    s12<-(sum((g2-x6[2])^2/g2))/(n2*x6[2]^2)
+    s13<-(sum((g3-x6[3])^2/g3))/(n3*x6[3]^2)
+    v=c(s11, s12, s13)
+    s0<-v
+    x10=abs(x8-x6)
+    p=max(x10[1], x10[2], x10[3], na.rm = FALSE)
+    if(p<=0.0000001)
+    {
+      break
+    }
+    x8<-x6
+  }
+  LR=((t1*s0[1])^(n1/2))*((t2*s0[2])^(n2/2))*((t3*s0[3])^(n3/2))
+  out<-fun2(n1,n2,n3,barx,1/s1,1/s2,1/s3)
+  a=0
+  if(LR<out)
+    a=a+1
+  return(a)
+}
+fun4<-function(n1,n2,n3,mu1,mu2,mu3,v1,v2,v3)
+{
+  out<-replicate(1000,fun3(n1,n2,n3,mu1,mu2,mu3,v1,v2,v3))
+  p<-sum(out)/1000
+  return(p)
+}
+
+
+##For size values in Table 7.2
+p<-replicate(5,fun4(5,5,5,1,1,1,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,1,1,1,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,1,1,1,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,1,1,1,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,1,1,1,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,1,1,1,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,5,5,5,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(5,5,5,10,10,10,1,1,10))
+p;mean(p)
+
+
+p<-replicate(5,fun4(25,20,30,1,1,1,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,1,1,1,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,1,1,1,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,1,1,1,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,1,1,1,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,1,1,1,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,5,5,5,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(25,20,30,10,10,10,1,1,10))
+p;mean(p)
+
+
+p<-replicate(5,fun4(50,40,60,1,1,1,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,5,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,10,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,5,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,1,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,1,1,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,1,1,10))
+p;mean(p)
+
+
+###For size values in Table 7.3
+
+p<-replicate(5,fun4(30,20,25,1,1,1,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,1,1,1,5,5,5))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,1,1,1,10,10,10))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,5,5,5,6,8,7))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,5,5,5,50,50,50))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,5,5,5,60,50,50))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,10,10,10,12,16,14))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,10,10,10,80,90,60))
+p;mean(p)
+p<-replicate(5,fun4(30,20,25,10,10,10,100,100,100))
+p;mean(p)
+
+##For size values in Table 7.3
+
+p<-replicate(5,fun4(50,40,60,1,1,1,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,5,5,5))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,1,1,1,10,10,10))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,6,8,7))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,50,50,50))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,5,5,5,60,50,50))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,12,16,14))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,80,90,60))
+p;mean(p)
+p<-replicate(5,fun4(50,40,60,10,10,10,100,100,100))
+p;mean(p)
+
+### For power values in Table 7.6
+
+p<-replicate(5,fun4(20,25,30,1,2,2.2,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.4,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.6,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.8,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.2,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.4,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.6,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.8,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.2,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.4,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.6,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.8,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.2,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.4,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.6,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.8,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,6,1,1,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,6.2,1,1,1))
+p;mean(p)
+
+
+
+p<-replicate(5,fun4(20,25,30,1,2,2.2,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.4,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.6,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,2.8,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.2,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.4,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.6,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,3.8,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.2,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.4,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.6,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,4.8,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.2,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.4,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.6,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,5.8,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,6,5,7,1))
+p;mean(p)
+p<-replicate(5,fun4(20,25,30,1,2,6.2,5,7,1))
+p;mean(p)
+

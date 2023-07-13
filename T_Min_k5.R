@@ -1,0 +1,185 @@
+rm(list=ls())
+library(mgcv)
+fun1<-function(n1,n2,n3,n4,n5,mu,l1,l2,l3,l4,l5)
+{
+  g1=rig(n1,mu,1/l1);g2=rig(n2,mu,1/l2);g3=rig(n3,mu,1/l3)
+  g4=rig(n4,mu,1/l4);g5=rig(n5,mu,1/l5)
+  m1=mean(g1);m2=mean(g2);m3=mean(g3);m4=mean(g4);m5=mean(g5)
+  s1<-var(g1);s2<-var(g2);s3<-var(g3);s4=var(g4);s5=var(g5)
+  V1<-sqrt(s1/n1+s2/n2);V2<-sqrt(s2/n2+s3/n3);V3=sqrt(s3/n3+s4/n4);V4=sqrt(n4/s4+s5/s5)
+  T1=(m2-m1)/V1;T2=(m3-m2)/V2;T3=(m4-m3)/V3;T4=(m5-m4)/V4
+  A=min(T1,T2,T3,T4,na.rm = FALSE)
+  return(A)
+}
+
+fun2<-function(n1,n2,n3,n4,n5,mu,l1,l2,l3,l4,l5)
+{
+  x<-replicate(1000,fun1(n1,n2,n3,n4,n5,mu,l1,l2,l3,l4,l5))
+  y<-sort(x,decreasing=FALSE)
+  c<-y[950]
+  return(c)
+}
+
+fun3<-function(n1,n2,n3,n4,n5,mu1,mu2,mu3,mu4,mu5,l1,l2,l3,l4,l5)
+{
+  g1=rig(n1,mu1,1/l1);g2=rig(n2,mu2,1/l2);g3=rig(n3,mu3,1/l3)
+  g4=rig(n4,mu4,1/l4);g5=rig(n5,mu5,1/l5)
+  m1=mean(g1);m2=mean(g2);m3=mean(g3);m4=mean(g4);m5=mean(g5)
+  s1<-var(g1);s2<-var(g2);s3<-var(g3);s4=var(g4);s5=var(g5)
+  V1<-sqrt(s1/n1+s2/n2);V2<-sqrt(s2/n2+s3/n3);V3=sqrt(s3/n3+s4/n4);V4=sqrt(n4/s4+s5/s5)
+  T1=(m2-m1)/V1;T2=(m3-m2)/V2;T3=(m4-m3)/V3;T4=(m5-m4)/V4
+  A=min(T1,T2,T3,T4,na.rm = FALSE)
+  S1<-sum(1/g1)/n1-1/m1;S2<-sum(1/g2)/n2-1/m2;S3<-sum(1/g3)/n3-1/m3
+  S4<-sum(1/g4)/n4-1/m4;S5<-sum(1/g5)/n5-1/m5
+  barx=(n1*m1*(1/S1)+n2*m2*(1/S2)+n3*m3*(1/S3)+n4*m4*(1/S4)+n5*m5*(1/S5))/(n1*(1/S1)+n2*(1/S2)+n3*(1/S3)+n4*(1/S4)+n5*(1/S5))
+  #mu=(n1*(1/s1)*m1+n2*(1/s2)*m2+n3*(1/s3)*m3)/(n1*(1/s1)+n2*(1/s2)+n3*(1/s3))
+  out=fun2(n1,n2,n3,n4,n5,barx,1/S1,1/S2,1/S3,1/S4,1/S5)
+  a=0
+  if(A>out)
+    a=a+1
+  return(a)
+}
+
+fun4<-function(n1,n2,n3,n4,n5,mu1,mu2,mu3,mu4,mu5,l1,l2,l3,l4,l5)
+{
+  out<-replicate(1000,fun3(n1,n2,n3,n4,n5,mu1,mu2,mu3,mu4,mu5,l1,l2,l3,l4,l5))
+  p<-sum(out)/1000
+  return(p)
+}
+
+##Size values of Table 7.5 
+
+X<-replicate(5,fun4(5,5,5,5,5,1,1,1,1,1,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,1,1,1,1,1,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,1,1,1,1,1,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,1,1,1,1,1,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,1,1,1,1,1,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(5,5,5,5,5,5,5,5,5,5,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,5,5,5,5,5,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,5,5,5,5,5,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,5,5,5,5,5,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,5,5,5,5,5,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(5,5,5,5,5,10,10,10,10,10,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,10,10,10,10,10,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,10,10,10,10,10,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,10,10,10,10,10,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(5,5,5,5,5,10,10,10,10,10,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(15,10,15,10,15,1,1,1,1,1,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,1,1,1,1,1,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,1,1,1,1,1,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,1,1,1,1,1,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,1,1,1,1,1,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(15,10,15,10,15,5,5,5,5,5,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,5,5,5,5,5,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,5,5,5,5,5,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,5,5,5,5,5,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,5,5,5,5,5,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(15,10,15,10,15,10,10,10,10,10,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,10,10,10,10,10,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,10,10,10,10,10,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,10,10,10,10,10,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(15,10,15,10,15,10,10,10,10,10,10,10,10,10,10))
+X;mean(X)
+
+
+X<-replicate(5,fun4(30,20,30,20,30,1,1,1,1,1,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,1,1,1,1,1,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,1,1,1,1,1,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,1,1,1,1,1,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,1,1,1,1,1,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(30,20,30,20,30,5,5,5,5,5,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,5,5,5,5,5,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,5,5,5,5,5,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,5,5,5,5,5,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,5,5,5,5,5,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(30,20,30,20,30,10,10,10,10,10,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,10,10,10,10,10,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,10,10,10,10,10,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,10,10,10,10,10,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,20,30,20,30,10,10,10,10,10,10,10,10,10,10))
+X;mean(X)
+
+
+X<-replicate(5,fun4(30,5,40,8,7,1,1,1,1,1,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,1,1,1,1,1,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,1,1,1,1,1,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,1,1,1,1,1,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,1,1,1,1,1,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(30,5,40,8,7,5,5,5,5,5,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,5,5,5,5,5,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,5,5,5,5,5,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,5,5,5,5,5,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,5,5,5,5,5,10,10,10,10,10))
+X;mean(X)
+
+X<-replicate(5,fun4(30,5,40,8,7,10,10,10,10,10,1,1,1,1,1))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,10,10,10,10,10,1,1,5,5,5))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,10,10,10,10,10,1,1,5,10,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,10,10,10,10,10,1,1,5,1,10))
+X;mean(X)
+X<-replicate(5,fun4(30,5,40,8,7,10,10,10,10,10,10,10,10,10,10))
+X;mean(X)
+
